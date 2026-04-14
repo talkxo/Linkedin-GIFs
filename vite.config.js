@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: 'dist',
-      minify: 'terser',
+      minify: 'esbuild',
     },
     plugins: [
       // Dev-only API proxy — mimics the Vercel serverless function locally
