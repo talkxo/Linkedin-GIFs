@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Corporate Vibe Matrix — Post the perfect GIF to LinkedIn</title>
+  <meta name="description" content="Pick your mood, get an AI-matched GIF, and post it straight to LinkedIn. The fastest way to update how you really feel at work." />
+  <meta property="og:title" content="Corporate Vibe Matrix — Your mood as a GIF" />
+  <meta property="og:description" content="AI picks the perfect work GIF for your mood. One click to LinkedIn." />
+  <meta property="og:type" content="website" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <!-- Ambient canvas background -->
+  <canvas id="particles-canvas" aria-hidden="true"></canvas>
+
+  <div id="app">
+    <!-- Header -->
+    <header id="site-header">
+      <p class="header-subtitle">Your mood → a <strong>GIF</strong> → straight to <strong>LinkedIn</strong></p>
+    </header>
+
+    <!-- Main content: Matrix + Results -->
+    <main id="main-content">
+      <!-- LEFT: The Interactive Matrix -->
+      <section id="matrix-panel" class="panel glass-card" aria-label="Mood Matrix">
+        <div class="panel-header">
+          <h1 id="matrix-title">How's work going?</h1>
+          <p class="panel-hint">Drag the dot. We'll find your GIF.</p>
+        </div>
+
+        <div id="matrix-container">
+          <!-- Quadrant labels -->
+          <span class="quadrant-label q-tl" data-quadrant="burnout">🔥 Burnout<br><small>Low Energy · Chaos</small></span>
+          <span class="quadrant-label q-tr" data-quadrant="hustle">⚡ Hustle Mode<br><small>High Energy · Chaos</small></span>
+          <span class="quadrant-label q-bl" data-quadrant="quiet">😶 Quiet Quitting<br><small>Low Energy · Zen</small></span>
+          <span class="quadrant-label q-br" data-quadrant="flow">🧘 Flow State<br><small>High Energy · Zen</small></span>
+
+          <!-- Axis labels -->
+          <span class="axis-label axis-x-low">Low Energy</span>
+          <span class="axis-label axis-x-high">High Energy</span>
+          <span class="axis-label axis-y-low">Zen ✨</span>
+          <span class="axis-label axis-y-high">Chaos 💀</span>
+
+          <!-- Grid lines -->
+          <div class="matrix-grid">
+            <div class="grid-line-h"></div>
+            <div class="grid-line-v"></div>
+          </div>
+
+          <!-- Gradient background (dynamic) -->
+          <div id="matrix-gradient"></div>
+
+          <!-- The draggable dot -->
+          <div id="vibe-dot" role="slider" aria-label="Mood selector" aria-valuemin="0" aria-valuemax="100" tabindex="0">
+            <div class="dot-ring"></div>
+            <div class="dot-core"></div>
+            <div class="dot-pulse"></div>
+          </div>
+
+          <!-- Trail canvas (overlaid) -->
+          <canvas id="trail-canvas" aria-hidden="true"></canvas>
+        </div>
+
+        <!-- Coordinate display -->
+        <div id="coord-display" class="coord-readout">
+          <span class="coord-label">Energy</span>
+          <span id="coord-x" class="coord-value">50</span>
+          <span class="coord-separator">×</span>
+          <span class="coord-label">Outlook</span>
+          <span id="coord-y" class="coord-value">50</span>
+        </div>
+
+        <!-- CTA button (mobile) -->
+        <button id="generate-btn" class="btn btn-primary btn-generate" type="button">
+          <span class="btn-text">Get My GIF</span>
+          <span class="btn-icon">→</span>
+        </button>
+      </section>
+
+      <!-- RIGHT: Results Panel -->
+      <section id="results-panel" class="panel glass-card" aria-label="Your Vibe Result">
+        <!-- Initial empty state -->
+        <div id="results-empty" class="results-state active">
+          <div class="empty-icon">
+            <span class="empty-emoji">👈</span>
+          </div>
+          <h2 class="empty-title">Your GIF is waiting</h2>
+          <p class="empty-desc">Drag the dot → get a GIF → post to LinkedIn.</p>
+        </div>
+
+        <!-- Loading state -->
+        <div id="results-loading" class="results-state">
+          <div class="loading-spinner">
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+          </div>
+          <p id="loading-text" class="loading-message">Finding your GIF...</p>
+          <div class="loading-bar">
+            <div class="loading-bar-fill"></div>
+          </div>
+        </div>
+
+        <!-- Success state -->
+        <div id="results-success" class="results-state">
+          <div id="gif-container" class="gif-wrapper">
+            <img id="gif-image" src="" alt="Your work mood GIF for LinkedIn" loading="lazy" />
+            <div class="gif-watermark">vibeMatrix</div>
+            <div id="gif-reveal-mask" class="gif-reveal"></div>
+          </div>
+
+          <div id="caption-container" class="caption-area">
+            <p id="caption-text" class="caption"></p>
+          </div>
+
+          <div class="gif-counter">
+            <span id="gif-index">1</span>
+            <span class="gif-counter-sep">/</span>
+            <span id="gif-total">15</span>
+          </div>
+
+          <div class="action-buttons">
+            <button id="btn-next" class="btn btn-secondary" type="button">
+              <span class="btn-icon">↻</span>
+              <span class="btn-text">Next GIF</span>
+            </button>
+            <button id="btn-share" class="btn btn-primary" type="button">
+              <span class="btn-icon">📮</span>
+              <span class="btn-text">Post to LinkedIn</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Error state -->
+        <div id="results-error" class="results-state">
+          <div class="error-icon">💀</div>
+          <h2 class="error-title">The vibes are off</h2>
+          <p id="error-message" class="error-desc">Something went wrong. Try again?</p>
+          <button id="btn-retry" class="btn btn-secondary" type="button">
+            <span class="btn-text">Retry</span>
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer id="site-footer">
+      <p>Made with <span class="footer-heart">♥</span> by people who should be working</p>
+    </footer>
+  </div>
+
+  <!-- Lead Capture Modal -->
+  <div id="lead-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+    <div class="modal-card glass-card">
+      <button id="modal-close" class="modal-close-btn" type="button" aria-label="Close">×</button>
+      <div class="modal-emoji">🚀</div>
+      <h2 id="modal-title" class="modal-heading">Want content that hits like this?</h2>
+      <p class="modal-desc">Drop your email. We'll show you how.</p>
+      <form id="lead-form" class="modal-form">
+        <div class="input-group">
+          <input type="email" id="lead-email" class="modal-input" placeholder="your@email.com" required autocomplete="email" />
+          <button type="submit" id="modal-submit-btn" class="btn btn-primary modal-submit">
+            <span id="modal-submit-text" class="btn-text">Let's go</span>
+            <span class="btn-icon">→</span>
+          </button>
+        </div>
+        <p class="modal-privacy">No spam. Just vibes. Unsubscribe anytime.</p>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="/main.js"></script>
+</body>
+</html>
