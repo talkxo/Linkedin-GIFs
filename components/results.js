@@ -38,6 +38,9 @@ export class Results {
     this.gifIndex = document.getElementById('gif-index');
     this.gifTotal = document.getElementById('gif-total');
     this.btnNext = document.getElementById('btn-next');
+    this.btnCopy = document.getElementById('btn-copy');
+    this.btnCopyText = document.getElementById('btn-copy-text');
+    this.step2Share = document.getElementById('step2-share');
     this.btnShare = document.getElementById('btn-share');
     this.btnRetry = document.getElementById('btn-retry');
     this.errorMessage = document.getElementById('error-message');
@@ -56,14 +59,14 @@ export class Results {
 
   _bindEvents() {
     this.btnNext.addEventListener('click', () => this._onNext());
+    this.btnCopy.addEventListener('click', () => this._onCopy());
     this.btnShare.addEventListener('click', () => this._onShare());
     this.btnRetry.addEventListener('click', () => {
-      // Retry triggers a custom event the main app listens for
       document.dispatchEvent(new CustomEvent('vibe:retry'));
     });
 
     // Ripple effect on buttons
-    [this.btnNext, this.btnShare, this.btnRetry].forEach(btn => {
+    [this.btnNext, this.btnCopy, this.btnShare, this.btnRetry].forEach(btn => {
       btn.addEventListener('click', (e) => this._ripple(e, btn));
     });
   }
@@ -114,6 +117,9 @@ export class Results {
     this.gifs = data.gifs;
     this.currentIndex = 0;
 
+    // Reset the share flow for new results
+    this._resetShareFlow();
+
     this.gifTotal.textContent = this.gifs.length;
     this._displayCurrentGif();
     this._showState('success');
@@ -142,7 +148,6 @@ export class Results {
     const img = new Image();
     img.onload = () => {
       this.gifImage.src = url;
-      // Trigger reveal animation
       requestAnimationFrame(() => {
         this.gifImage.classList.add('loaded');
       });
@@ -156,20 +161,21 @@ export class Results {
     };
     img.src = url;
 
-    // Typewriter caption (only on first load, not next-cycling)
+    // Typewriter caption
     if (this.typewriterHandle) this.typewriterHandle.cancel();
-    this.typewriterHandle = typewriter(this.captionText, `"${this.caption}"`, 30);
+    this.typewriterHandle = typewriter(this.captionText, this.caption, 30);
   }
 
-  /** Next face button */
+  /** Next GIF button */
   _onNext() {
     if (this.gifs.length === 0) return;
 
     this.currentIndex = (this.currentIndex + 1) % this.gifs.length;
     this._displayCurrentGif();
+    this._resetShareFlow();
     this.onInteraction?.('next');
 
-    // Add a subtle scale bounce to the GIF container
+    // Subtle scale bounce
     const wrapper = this.gifImage.parentElement;
     wrapper.style.transform = 'scale(0.97)';
     setTimeout(() => {
@@ -177,12 +183,49 @@ export class Results {
     }, 150);
   }
 
-  /** Share button */
-  _onShare() {
+  /** Step 1: Copy GIF link to clipboard */
+  async _onCopy() {
     const gif = this.gifs[this.currentIndex];
     const gifUrl = gif?.images?.original?.url || '';
-    shareToLinkedIn(this.caption, gifUrl);
+    if (!gifUrl) return;
+
+    try {
+      await navigator.clipboard.writeText(gifUrl);
+
+      // Visual feedback — button turns green with checkmark
+      this.btnCopy.classList.add('copied');
+      this.btnCopyText.textContent = 'Copied!';
+      this.btnCopy.querySelector('.btn-icon').textContent = '✅';
+
+      // Reveal Step 2 button with slide-in
+      this.step2Share.style.display = 'flex';
+      requestAnimationFrame(() => {
+        this.step2Share.classList.add('visible');
+      });
+
+      this.onInteraction?.('copy');
+    } catch (err) {
+      // Fallback for older browsers
+      this.btnCopyText.textContent = 'Failed — try again';
+      setTimeout(() => {
+        this.btnCopyText.textContent = 'Copy GIF Link';
+      }, 2000);
+    }
+  }
+
+  /** Step 2: Open LinkedIn with caption */
+  _onShare() {
+    shareToLinkedIn(this.caption);
     this.onInteraction?.('share');
+  }
+
+  /** Reset the two-step share flow */
+  _resetShareFlow() {
+    this.btnCopy.classList.remove('copied');
+    this.btnCopyText.textContent = 'Copy GIF Link';
+    this.btnCopy.querySelector('.btn-icon').textContent = '📋';
+    this.step2Share.style.display = 'none';
+    this.step2Share.classList.remove('visible');
   }
 
   /** Button ripple effect */

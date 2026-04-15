@@ -131,9 +131,15 @@
               <span class="btn-icon">↻</span>
               <span class="btn-text">Next GIF</span>
             </button>
-            <button id="btn-share" class="btn btn-primary" type="button">
+            <button id="btn-copy" class="btn btn-primary" type="button">
+              <span class="btn-icon">📋</span>
+              <span id="btn-copy-text" class="btn-text">Copy GIF Link</span>
+            </button>
+          </div>
+          <div id="step2-share" class="action-buttons step2" style="display:none;">
+            <button id="btn-share" class="btn btn-primary btn-linkedin" type="button">
               <span class="btn-icon">🔗</span>
-              <span class="btn-text">Share on LinkedIn</span>
+              <span class="btn-text">Now post on LinkedIn →</span>
             </button>
           </div>
         </div>
@@ -152,7 +158,14 @@
 
     <!-- Footer -->
     <footer id="site-footer">
-      <p>Made with <span class="footer-heart">♥</span> by people who should be working</p>
+      <div class="footer-copy">
+        <p>Made with <span class="footer-heart">♥</span> by people who should be working</p>
+      </div>
+      <div class="footer-brand-strip">
+        <a href="https://hello.talkxo.com" target="_blank" rel="noopener noreferrer" aria-label="Visit TalkXO">
+          <img src="/logo.png" alt="TalkXO Logo" class="footer-brand-logo">
+        </a>
+      </div>
     </footer>
   </div>
 

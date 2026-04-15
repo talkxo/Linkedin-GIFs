@@ -711,7 +711,8 @@ input {
   font-weight: 500;
   color: var(--text-caption);
   line-height: 1.5;
-  max-width: 320px;
+  width: 100%;
+  text-align: center;
 }
 
 .caption .char {
@@ -805,6 +806,36 @@ input {
   transform: scale(0);
   animation: ripple 0.6s ease-out forwards;
   pointer-events: none;
+}
+
+/* Copied state */
+.btn.copied {
+  background: linear-gradient(135deg, var(--accent-success), #2dd4a0) !important;
+  box-shadow: var(--shadow-sm), 0 0 20px rgba(77, 255, 180, 0.3) !important;
+  pointer-events: none;
+}
+
+/* Step 2: Share on LinkedIn slide-in */
+.action-buttons.step2 {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity var(--duration-normal) var(--ease-out-expo),
+              transform var(--duration-normal) var(--ease-out-expo);
+  margin-top: calc(-1 * var(--space-sm));
+}
+
+.action-buttons.step2.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.btn-linkedin {
+  background: linear-gradient(135deg, #0077b5, #00a0dc) !important;
+  box-shadow: var(--shadow-sm), 0 0 20px rgba(0, 119, 181, 0.3) !important;
+}
+
+.btn-linkedin:hover {
+  box-shadow: var(--shadow-md), 0 0 30px rgba(0, 119, 181, 0.4) !important;
 }
 
 
@@ -956,11 +987,37 @@ input {
 
 /* ---- Footer ---- */
 #site-footer {
-  padding: var(--space-2xl) 0 var(--space-lg);
+  width: calc(100% + var(--space-md) * 2);
+  margin-left: calc(-1 * var(--space-md));
+  margin-right: calc(-1 * var(--space-md));
+  margin-bottom: calc(-1 * var(--space-lg));
+  margin-top: auto;
   text-align: center;
   font-size: 0.8rem;
   color: var(--text-tertiary);
   animation: fadeSlideUp 1s var(--ease-out-expo) 0.3s both;
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-copy {
+  padding: var(--space-2xl) 0 var(--space-xl);
+}
+
+.footer-brand-strip {
+  background: #ffffff;
+  padding: var(--space-md) 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.footer-brand-logo {
+  height: 28px;
+  width: auto;
+  display: block;
+  object-fit: contain;
 }
 
 .footer-heart {
